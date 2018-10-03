@@ -1,0 +1,82 @@
+@startuml
+
+title Illustration of synced Future execution
+
+legend
+Ping actor tries to send ping message **__every two seconds__** and wait **__one second__** for response.
+Pong actor takes **__0.3 second__** to process for odd-numbered trials;
+while it takes **__2.5 seconds__** for even-numbered trials.
+end legend
+
+scale 1 as 75 pixels
+
+concise "main" as main
+robust "pingActor"  as ping
+robust "pongActor" as pong
+robust "deadLetterMailbox" as deadLetter
+
+@0
+main is "Ticks every two seconds"
+ping is Idle
+pong is Idle
+deadLetter is " "
+
+@2
+main -[#red]> ping : Ticks
+ping -[#red]> pong : Ping
+ping is Waiting
+pong is Processing
+
+@2.3
+pong -[#red]> ping : Pong
+ping is Idle
+pong is Idle
+
+@4
+main -[#green]> ping : Ticks
+ping is Waiting
+ping -[#green]> pong : Ping
+pong is Processing
+ping@4 <-> @5 : Timeout
+
+@5
+ping is Idle
+
+@6
+main -> ping : Ticks
+ping is Waiting
+ping -> pong@6.5 : Ping
+
+@6.5
+pong -[#green]> deadLetter : Pong
+pong@4 <-> @6.5 : Takes two secs to finish
+pong is Processing
+
+@6.8
+pong -> ping : Pong
+pong is Idle
+ping is Idle
+
+@8
+main -[#red]> ping : Ticks
+ping is Waiting
+ping -[#red]> pong : Ping
+pong is Processing
+
+@9
+ping is Idle
+
+@10
+main -[#green]> ping : Ticks
+ping is Waiting
+ping -[#green]> pong@10.5 : Ping
+
+@10.5
+pong -[#red]> deadLetter : Pong
+
+@10.8
+pong -[#green]> ping : Pong
+ping is Idle
+pong is Idle
+
+@enduml
