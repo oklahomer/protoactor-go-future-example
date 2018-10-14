@@ -1,0 +1,96 @@
+@startuml
+
+title Illustration of piped Future execution
+
+legend
+Ping actor sends ping message **__every one second__** with a timeout of **__2.5 seconds__** and pipes the result to itself.
+Pong actor pool receives ping message, divides the trial count by **__three__** and...
+- when the remainder is **__zero__** it takes **__1.7 second__** to respond
+- when the remainder is **__one__** it takes **__0.3 second__** to respond
+- when the remainder is **__two__** it takes **__2.9 seconds__** to respond
+end legend
+
+scale 1 as 75 pixels
+
+concise "main" as main
+robust "pingActor"  as ping
+robust "pongActorPool" as pong
+robust "deadLetterMailbox" as deadLetter
+
+@0
+main is "Ticks every second"
+ping is " "
+pong is " "
+deadLetter is " "
+
+@1
+main -> ping : Ticks
+ping -> pong : Ping
+
+@1.3
+pong -> ping : Pong
+
+@2
+main -[#green]> ping : Ticks
+ping -[#green]> pong : Ping
+
+@3
+main -[#red]> ping : Ticks
+ping -[#red]> pong : Ping
+
+@4
+main -> ping : Ticks
+ping -> pong : Ping
+
+@4.3
+pong -> ping : Pong
+
+@4.7
+pong -[#red]> ping : Pong
+
+@4.9
+pong -[#green]> deadLetter : Pong
+
+@5
+main -[#green]> ping : Ticks
+ping -[#green]> pong : Ping
+
+@6
+main -[#red]> ping : Ticks
+ping -[#red]> pong : Ping
+
+@7
+main -> ping : Ticks
+ping -> pong : Ping
+
+@7.3
+pong -> ping : Pong
+
+@7.7
+pong -[#red]> ping : Pong
+
+@7.9
+pong -[#green]> deadLetter : Pong
+
+@8
+main -[#green]> ping : Ticks
+ping -[#green]> pong : Ping
+
+@9
+main -[#red]> ping : Ticks
+ping -[#red]> pong : Ping
+
+@10
+main -> ping: Ticks
+ping -> pong : Ping
+
+@10.3
+pong -> ping : Pong
+
+@10.7
+pong -[#red]> ping : Pong
+
+@10.9
+pong -[#green]> deadLetter : Pong
+
+@enduml
