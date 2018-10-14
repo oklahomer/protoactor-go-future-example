@@ -30,15 +30,15 @@ func (p *pingActor) Receive(ctx actor.Context) {
 		// Output becomes somewhat like below.
 		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/pipe/timeline.png
 
-		// 2018/10/14 14:20:36 Received pong message &{count:1}
-		// 2018/10/14 14:20:39 Received pong message &{count:4}
-		// 2018/10/14 14:20:39 Received pong message &{count:3}
+		// 2018/10/14 14:20:36 Received pong message &main.pong{count:1}
+		// 2018/10/14 14:20:39 Received pong message &main.pong{count:4}
+		// 2018/10/14 14:20:39 Received pong message &main.pong{count:3}
 		// 2018/10/14 05:20:39 [ACTOR] [DeadLetter] pid="nonhost/future$e" message=&{'\x02'} sender="nil"
-		// 2018/10/14 14:20:42 Received pong message &{count:7}
-		// 2018/10/14 14:20:42 Received pong message &{count:6}
+		// 2018/10/14 14:20:42 Received pong message &main.pong{count:7}
+		// 2018/10/14 14:20:42 Received pong message &main.pong{count:6}
 		// 2018/10/14 05:20:42 [ACTOR] [DeadLetter] pid="nonhost/future$h" message=&{'\x05'} sender="nil"
-		// 2018/10/14 14:20:45 Received pong message &{count:10}
-		// 2018/10/14 14:20:45 Received pong message &{count:9}
+		// 2018/10/14 14:20:45 Received pong message &main.pong{count:10}
+		// 2018/10/14 14:20:45 Received pong message &main.pong{count:9}
 		// 2018/10/14 05:20:45 [ACTOR] [DeadLetter] pid="nonhost/future$k" message=&{'\b'} sender="nil"
 		message := &ping{
 			count: p.count,
@@ -49,7 +49,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 			PipeTo(ctx.Self())
 
 	case *pong:
-		log.Printf("Received pong message %+v", msg)
+		log.Printf("Received pong message %#v", msg)
 
 	}
 }

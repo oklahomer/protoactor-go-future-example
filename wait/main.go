@@ -48,13 +48,13 @@ func (p *pingActor) Receive(ctx actor.Context) {
 		// Output becomes somewhat like below.
 		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/wait/timeline.png
 		//
-		// 2018/10/13 17:03:22 Received pong message &{}
+		// 2018/10/13 17:03:22 Received pong message &main.pong{}
 		// 2018/10/13 17:03:24 Timed out
 		// 2018/10/13 08:03:26 [ACTOR] [DeadLetter] pid="nonhost/future$4" message=&{} sender="nil"
-		// 2018/10/13 17:03:26 Received pong message &{}
+		// 2018/10/13 17:03:26 Received pong message &main.pong{}
 		// 2018/10/13 17:03:28 Timed out
 		// 2018/10/13 08:03:30 [ACTOR] [DeadLetter] pid="nonhost/future$6" message=&{} sender="nil"
-		// 2018/10/13 17:03:30 Received pong message &{}
+		// 2018/10/13 17:03:30 Received pong message &main.pong{}
 		future := p.pongPid.RequestFuture(&ping{}, 1*time.Second)
 		// Future.Result internally waits until response comes or times out
 		result, err := future.Result()
@@ -63,7 +63,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 			return
 		}
 
-		log.Printf("Received pong message %+v", result)
+		log.Printf("Received pong message %#v", result)
 
 	}
 }
