@@ -1,6 +1,6 @@
 @startuml
 
-title Illustration of piped Future execution
+title Illustration of AwaitFuture execution
 
 legend
 Ping actor sends ping message **__every one second__** with a timeout of **__2.5 seconds__** and pipes the result to itself.
@@ -10,15 +10,17 @@ Pong actor pool receives ping message, divides the trial count by **__three__** 
 - when the remainder is **__two__** it takes **__2.9 seconds__** to respond
 end legend
 
-scale 1 as 75 pixels
+scale 1 as 100 pixels
 
 concise "main" as main
+robust "callback" as callback
 robust "pingActor"  as ping
 robust "pongActorPool" as pong
 robust "deadLetterMailbox" as deadLetter
 
 @0
 main is "Ticks every second"
+callback is " "
 ping is " "
 pong is " "
 deadLetter is " "
@@ -29,10 +31,12 @@ ping -> pong : Ping
 
 @1.3
 pong -> ping : Pong
+ping -> callback : Execute
 
 @2
 main -[#red]> ping : Ticks
 ping -[#red]> pong : Ping
+ping@2 <-> @4.5 : Timeout
 
 @3
 main -[#green]> ping : Ticks
@@ -44,9 +48,14 @@ ping -> pong : Ping
 
 @4.3
 pong -> ping : Pong
+ping -> callback : Execute
+
+@4.5
+ping -[#red]> callback : Execute\ntimeout
 
 @4.7
 pong -[#green]> ping : Pong
+ping -[#green]> callback : Execute
 
 @4.9
 pong -[#red]> deadLetter : Pong
@@ -65,9 +74,14 @@ ping -> pong : Ping
 
 @7.3
 pong -> ping : Pong
+ping -> callback : Execute
+
+@7.5
+ping -[#red]> callback : Execute\ntimeout
 
 @7.7
 pong -[#green]> ping : Pong
+ping -[#green]> callback : Execute
 
 @7.9
 pong -[#red]> deadLetter : Pong
@@ -86,9 +100,14 @@ ping -> pong : Ping
 
 @10.3
 pong -> ping : Pong
+ping -> callback : Execute
+
+@10.5
+ping -[#red]> callback : Execute\ntimeout
 
 @10.7
 pong -[#green]> ping : Pong
+ping -[#green]> callback : Execute
 
 @10.9
 pong -[#red]> deadLetter : Pong

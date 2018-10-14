@@ -30,9 +30,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *tick:
 		// Output becomes somewhat like below.
-		// The event order is the same as the example of piped Future:
-		// https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/pipe/timeline.png
-		// However, a callback function is called on timed out event, too.
+		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/await_future/timeline.png
 		//
 		// 2018/10/14 16:10:49 Received pong response: &main.pong{count:1}
 		// 2018/10/14 16:10:52 Received pong response: &main.pong{count:4}
