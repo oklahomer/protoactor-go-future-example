@@ -34,7 +34,7 @@ func (p *pongActor) Receive(ctx actor.Context) {
 		}
 		time.Sleep(sleep)
 
-		ctx.Sender().Tell(&pong{})
+		ctx.Respond(&pong{})
 	}
 }
 
@@ -55,7 +55,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 		// 2018/10/13 17:03:28 Timed out
 		// 2018/10/13 08:03:30 [ACTOR] [DeadLetter] pid="nonhost/future$6" message=&{} sender="nil"
 		// 2018/10/13 17:03:30 Received pong message &main.pong{}
-		future := p.pongPid.RequestFuture(&ping{}, 1*time.Second)
+		future := ctx.RequestFuture(p.pongPid, &ping{}, 1*time.Second)
 		// Future.Result internally waits until response comes or times out
 		result, err := future.Result()
 		if err != nil {
@@ -69,20 +69,22 @@ func (p *pingActor) Receive(ctx actor.Context) {
 }
 
 func main() {
-	pongProps := actor.FromProducer(func() actor.Actor {
+	rootContext := actor.EmptyRootContext
+
+	pongProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pongActor{}
 	})
-	pongPid := actor.Spawn(pongProps)
+	pongPid := rootContext.Spawn(pongProps)
 
-	pingProps := actor.FromProducer(func() actor.Actor {
+	pingProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pingActor{
 			pongPid: pongPid,
 		}
 	})
-	pingPid := actor.Spawn(pingProps)
+	pingPid := rootContext.Spawn(pingProps)
 
 	finish := make(chan os.Signal, 1)
-	signal.Notify(finish, os.Interrupt)
+	signal.Notify(finish, syscall.SIGINT)
 	signal.Notify(finish, syscall.SIGTERM)
 
 	ticker := time.NewTicker(2 * time.Second)
@@ -91,11 +93,11 @@ func main() {
 	for {
 		select {
 		case <-ticker.C:
-			pingPid.Tell(struct{}{})
+			rootContext.Send(pingPid, struct{}{})
 
 		case <-finish:
-			return
 			log.Print("Finish")
+			return
 
 		}
 	}
