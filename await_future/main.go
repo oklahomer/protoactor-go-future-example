@@ -49,7 +49,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 		message := &ping{
 			count: msg.count,
 		}
-		future := p.pongPid.RequestFuture(message, 2500*time.Millisecond)
+		future := ctx.RequestFuture(p.pongPid, message, 2500*time.Millisecond)
 
 		cnt := msg.count
 		ctx.AwaitFuture(future, func(res interface{}, err error) {
@@ -73,6 +73,8 @@ func (p *pingActor) Receive(ctx actor.Context) {
 }
 
 func main() {
+	rootContext := actor.EmptyRootContext
+
 	pongProps := router.NewRoundRobinPool(10).
 		WithFunc(func(ctx actor.Context) {
 			switch msg := ctx.Message().(type) {
@@ -91,20 +93,20 @@ func main() {
 				message := &pong{
 					count: msg.count,
 				}
-				ctx.Sender().Tell(message)
+				ctx.Respond(message)
 			}
 		})
-	pongPid := actor.Spawn(pongProps)
+	pongPid := rootContext.Spawn(pongProps)
 
-	pingProps := actor.FromProducer(func() actor.Actor {
+	pingProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pingActor{
 			pongPid: pongPid,
 		}
 	})
-	pingPid := actor.Spawn(pingProps)
+	pingPid := rootContext.Spawn(pingProps)
 
 	finish := make(chan os.Signal, 1)
-	signal.Notify(finish, os.Interrupt)
+	signal.Notify(finish, syscall.SIGINT)
 	signal.Notify(finish, syscall.SIGTERM)
 
 	ticker := time.NewTicker(1 * time.Second)
@@ -115,11 +117,11 @@ func main() {
 		select {
 		case <-ticker.C:
 			count++
-			pingPid.Tell(&tick{count: count})
+			rootContext.Send(pingPid, &tick{count: count})
 
 		case <-finish:
-			return
 			log.Print("Finish")
+			return
 
 		}
 	}
