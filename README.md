@@ -24,3 +24,9 @@ The message execution is done in the same way as Future.PipeTo, but a callback f
 ![](https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/await_future/timeline.png)
 
 Example code is located at [./await_future](https://github.com/oklahomer/protoactor-go-future-example/tree/master/await_future).
+
+# Other Example Codes
+- [oklahomer/protoactor-go-sender-example](https://github.com/oklahomer/protoactor-go-sender-example)
+  - Some example codes to illustrate how protoactor-go refers to sender process
+- [/oklahomer/protoactor-go-middleware-example](https://github.com/oklahomer/protoactor-go-middleware-example)
+  - Some example codes to illustrate how protoactor-go use Middleware
