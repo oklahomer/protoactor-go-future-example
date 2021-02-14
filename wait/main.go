@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 )
 
@@ -69,31 +68,35 @@ func (p *pingActor) Receive(ctx actor.Context) {
 }
 
 func main() {
-	rootContext := actor.EmptyRootContext
+	// Setup actor system
+	system := actor.NewActorSystem()
 
+	// Setup a pong actor that receives ping payload, sleeps for a certain interval, and sends back pong payload.
+	// When the interval is longer than the timeout duration of Future, response fails with a DeadLetter.
 	pongProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pongActor{}
 	})
-	pongPid := rootContext.Spawn(pongProps)
+	pongPid := system.Root.Spawn(pongProps)
 
+	// Run a ping actor that periodically sends ping payload
 	pingProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pingActor{
 			pongPid: pongPid,
 		}
 	})
-	pingPid := rootContext.Spawn(pingProps)
+	pingPid := system.Root.Spawn(pingProps)
 
+	// Subscribe to signal to finish interaction
 	finish := make(chan os.Signal, 1)
-	signal.Notify(finish, syscall.SIGINT)
-	signal.Notify(finish, syscall.SIGTERM)
+	signal.Notify(finish, os.Interrupt, os.Kill)
 
+	// Periodically send ping payload till signal comes
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
-
 	for {
 		select {
 		case <-ticker.C:
-			rootContext.Send(pingPid, struct{}{})
+			system.Root.Send(pingPid, struct{}{})
 
 		case <-finish:
 			log.Print("Finish")
