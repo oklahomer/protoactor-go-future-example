@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/AsynkronIT/protoactor-go/router"
+	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/router"
 	"log"
 	"os"
 	"os/signal"
@@ -10,15 +10,15 @@ import (
 )
 
 type pong struct {
-	count uint
+	count int
 }
 
 type ping struct {
-	count uint
+	count int
 }
 
 type pingActor struct {
-	count     uint
+	count     int
 	routerPid *actor.PID
 }
 
@@ -28,17 +28,17 @@ func (p *pingActor) Receive(ctx actor.Context) {
 		p.count++
 		// Output becomes somewhat like below.
 		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/pipe/timeline.png
-
-		// 2018/10/14 14:20:36 Received pong message &main.pong{count:1}
-		// 2018/10/14 14:20:39 Received pong message &main.pong{count:4}
-		// 2018/10/14 14:20:39 Received pong message &main.pong{count:3}
-		// 2018/10/14 05:20:39 [ACTOR] [DeadLetter] pid="nonhost/future$e" message=&{'\x02'} sender="nil"
-		// 2018/10/14 14:20:42 Received pong message &main.pong{count:7}
-		// 2018/10/14 14:20:42 Received pong message &main.pong{count:6}
-		// 2018/10/14 05:20:42 [ACTOR] [DeadLetter] pid="nonhost/future$h" message=&{'\x05'} sender="nil"
-		// 2018/10/14 14:20:45 Received pong message &main.pong{count:10}
-		// 2018/10/14 14:20:45 Received pong message &main.pong{count:9}
-		// 2018/10/14 05:20:45 [ACTOR] [DeadLetter] pid="nonhost/future$k" message=&{'\b'} sender="nil"
+		//
+		// 2022/07/24 14:55:25 Received pong message &main.pong{count:1}
+		// 2022/07/24 14:55:28 Received pong message &main.pong{count:4}
+		// 2022/07/24 14:55:28 Received pong message &main.pong{count:3}
+		// 2022/07/24 14:55:28 DEBUG [ACTOR]       [DeadLetter] pid="nonhost/future$e" msg=*main.pong sender="nil"
+		// 2022/07/24 14:55:31 Received pong message &main.pong{count:7}
+		// 2022/07/24 14:55:31 Received pong message &main.pong{count:6}
+		// 2022/07/24 14:55:31 DEBUG [ACTOR]       [DeadLetter] pid="nonhost/future$h" msg=*main.pong sender="nil"
+		// 2022/07/24 14:55:34 Received pong message &main.pong{count:10}
+		// 2022/07/24 14:55:34 Received pong message &main.pong{count:9}
+		// 2022/07/24 14:55:34 DEBUG [ACTOR]       [DeadLetter] pid="nonhost/future$k" msg=*main.pong sender="nil"
 		message := &ping{
 			count: p.count,
 		}
@@ -51,13 +51,14 @@ func (p *pingActor) Receive(ctx actor.Context) {
 }
 
 func main() {
-	// Setup actor system
+	// Set up the actor system
 	system := actor.NewActorSystem()
 
-	// Setup a pool of pong actors that receive ping payload, sleep for a certain interval, and send back pong payload.
-	// When the interval is longer than the timeout duration of Future, response fails with a DeadLetter.
-	pongProps := router.NewRoundRobinPool(10).
-		WithFunc(func(ctx actor.Context) {
+	// Set up a pool of pong actors that receive a ping payload, sleep for a certain interval, and send back a pong payload.
+	// When the interval is longer than the timeout duration of the Future, a response fails with a DeadLetter.
+	pongProps := router.NewRoundRobinPool(
+		10,
+		actor.WithFunc(func(ctx actor.Context) {
 			switch msg := ctx.Message().(type) {
 			case *ping:
 				var sleep time.Duration
@@ -76,10 +77,11 @@ func main() {
 				}
 				ctx.Respond(message)
 			}
-		})
+		}),
+	)
 	pongRouterPid := system.Root.Spawn(pongProps)
 
-	// Run a ping actor that periodically sends ping payload
+	// Run a ping actor that periodically sends a ping payload
 	pingProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pingActor{
 			count:     0,
@@ -88,11 +90,11 @@ func main() {
 	})
 	pingPid := system.Root.Spawn(pingProps)
 
-	// Subscribe to signal to finish interaction
+	// Subscribe to a signal to finish the interaction
 	finish := make(chan os.Signal, 1)
 	signal.Notify(finish, os.Interrupt, os.Kill)
 
-	// Periodically send ping payload till signal comes
+	// Periodically send a ping payload till a signal comes
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 	for {

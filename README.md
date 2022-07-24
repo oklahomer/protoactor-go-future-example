@@ -6,7 +6,7 @@ Since the actor blocks, incoming messages stuck in the mailbox.
 
 ![](https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/wait/timeline.png)
 
-Example code is located at [./wait](https://github.com/oklahomer/protoactor-go-future-example/tree/master/wait).
+Example code is located at [./wait](./wait).
 
 # Future.PipeTo
 When the response comes back before Future times out, the response message is sent to the PipeTo destination.
@@ -16,14 +16,14 @@ When the execution times out, the response is sent to dead letter mailbox and th
 
 ![](https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/pipe/timeline.png)
 
-Example code is located at [./pipe](https://github.com/oklahomer/protoactor-go-future-example/tree/master/pipe).
+Example code is located at [./pipe](./pipe).
 
-# Context.AwaitFuture
+# Context.ReenterAfter
 The message execution is done in the same way as Future.PipeTo, but a callback function is called even when the execution times out.
 
-![](https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/await_future/timeline.png)
+![](https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/reenter/timeline.png)
 
-Example code is located at [./await_future](https://github.com/oklahomer/protoactor-go-future-example/tree/master/await_future).
+Example code is located at [./reenter](./reenter).
 
 # References
 - [[Golang] Protoactor-go 101: Introduction to golang's actor model implementation](https://blog.oklahome.net/2018/07/protoactor-go-introduction.html)
@@ -31,6 +31,7 @@ Example code is located at [./await_future](https://github.com/oklahomer/protoac
 - [[Golang] protoactor-go 101: How actor.Future works to synchronize concurrent task execution](https://blog.oklahome.net/2018/11/protoactor-go-how-future-works.html)
 - [[Golang] protoactor-go 201: How middleware works to intercept incoming and outgoing messages](https://blog.oklahome.net/2018/11/protoactor-go-middleware.html)
 - [[Golang] protoactor-go 201: Use plugins to add behaviors to an actor](https://blog.oklahome.net/2018/12/protoactor-go-use-plugin-to-add-behavior.html)
+- [[Golang] protoactor-go 301: How proto.actor's clustering works to achieve higher availability](https://blog.oklahome.net/2021/05/protoactor-clustering.html)
 
 # Other Example Codes
 - [oklahomer/protoactor-go-sender-example](https://github.com/oklahomer/protoactor-go-sender-example)
