@@ -27,7 +27,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 	case struct{}:
 		p.count++
 		// Output becomes somewhat like below.
-		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/pipe/timeline.png
+		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/main/docs/pipe/timeline.png
 		//
 		// 2022/07/24 14:55:25 Received pong message &main.pong{count:1}
 		// 2022/07/24 14:55:28 Received pong message &main.pong{count:4}

@@ -29,7 +29,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *tick:
 		// Output becomes somewhat like below.
-		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/reenter/timeline.png
+		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/main/docs/reenter/timeline.png
 		//
 		// 2022/07/24 14:42:54 Received pong response: &main.pong{count:1}
 		// 2022/07/24 14:42:57 Received pong response: &main.pong{count:4}

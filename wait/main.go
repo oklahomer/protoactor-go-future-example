@@ -45,7 +45,7 @@ func (p *pingActor) Receive(ctx actor.Context) {
 	switch ctx.Message().(type) {
 	case struct{}:
 		// Output becomes somewhat like below.
-		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/wait/timeline.png
+		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/main/docs/wait/timeline.png
 		//
 		// 2022/07/24 15:02:41 Received pong message &main.pong{}
 		// 2022/07/24 15:02:44 Timed out
