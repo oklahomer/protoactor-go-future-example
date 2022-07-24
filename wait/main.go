@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 	"log"
 	"os"
 	"os/signal"
@@ -47,13 +47,13 @@ func (p *pingActor) Receive(ctx actor.Context) {
 		// Output becomes somewhat like below.
 		// See a diagram at https://raw.githubusercontent.com/oklahomer/protoactor-go-future-example/master/docs/wait/timeline.png
 		//
-		// 2018/10/13 17:03:22 Received pong message &main.pong{}
-		// 2018/10/13 17:03:24 Timed out
-		// 2018/10/13 08:03:26 [ACTOR] [DeadLetter] pid="nonhost/future$4" message=&{} sender="nil"
-		// 2018/10/13 17:03:26 Received pong message &main.pong{}
-		// 2018/10/13 17:03:28 Timed out
-		// 2018/10/13 08:03:30 [ACTOR] [DeadLetter] pid="nonhost/future$6" message=&{} sender="nil"
-		// 2018/10/13 17:03:30 Received pong message &main.pong{}
+		// 2022/07/24 15:02:41 Received pong message &main.pong{}
+		// 2022/07/24 15:02:44 Timed out
+		// 2022/07/24 15:02:45 DEBUG [ACTOR]       [DeadLetter] pid="Address:\"nonhost\" Id:\"future$4\"" msg=*main.pong sender="<nil>"
+		// 2022/07/24 15:02:46 Received pong message &main.pong{}
+		// 2022/07/24 15:02:48 Timed out
+		// 2022/07/24 15:02:49 DEBUG [ACTOR]       [DeadLetter] pid="Address:\"nonhost\" Id:\"future$6\"" msg=*main.pong sender="<nil>"
+		// 2022/07/24 15:02:50 Received pong message &main.pong{}
 		future := ctx.RequestFuture(p.pongPid, &ping{}, 1*time.Second)
 		// Future.Result internally waits until response comes or times out
 		result, err := future.Result()
@@ -68,17 +68,17 @@ func (p *pingActor) Receive(ctx actor.Context) {
 }
 
 func main() {
-	// Setup actor system
+	// Set up the actor system
 	system := actor.NewActorSystem()
 
-	// Setup a pong actor that receives ping payload, sleeps for a certain interval, and sends back pong payload.
-	// When the interval is longer than the timeout duration of Future, response fails with a DeadLetter.
+	// Set up a pong actor that receives a ping payload, sleeps for a certain interval, and sends back a pong payload.
+	// When the interval is longer than the timeout duration of the Future, a response fails with a DeadLetter.
 	pongProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pongActor{}
 	})
 	pongPid := system.Root.Spawn(pongProps)
 
-	// Run a ping actor that periodically sends ping payload
+	// Run a ping actor that periodically sends a ping payload
 	pingProps := actor.PropsFromProducer(func() actor.Actor {
 		return &pingActor{
 			pongPid: pongPid,
@@ -86,11 +86,11 @@ func main() {
 	})
 	pingPid := system.Root.Spawn(pingProps)
 
-	// Subscribe to signal to finish interaction
+	// Subscribe to a signal to finish the interaction
 	finish := make(chan os.Signal, 1)
 	signal.Notify(finish, os.Interrupt, os.Kill)
 
-	// Periodically send ping payload till signal comes
+	// Periodically send a ping payload till a signal comes
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	for {
